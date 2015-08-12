@@ -1,0 +1,78 @@
+DEFINE AXIS/x=-179.75E:179.757E:0.5/units=degrees LON
+DEFINE AXIS/y=-89.75N:89.75N:0.5/units=degrees LAT
+DEFINE AXIS/t=$1:$1:1 TIME
+DEFINE GRID/x=LON/y=LAT/t=TIME luhgrid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Read ascii data and save in NetCDF
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FILE/COLUMNS=720/GRID=luhgrid/SKIP=6/VAR=crop_rev "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/original_files/extension/updated_states/gcrop.$1.txt"
+SAVE/CLOBBER/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_crop_$1.nc" crop_rev
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+FILE/COLUMNS=720/GRID=luhgrid/SKIP=6/VAR=past_rev "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/original_files/extension/updated_states/gpast.$1.txt"
+SAVE/CLOBBER/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_past_$1.nc" past_rev
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+FILE/COLUMNS=720/GRID=luhgrid/SKIP=6/VAR=secd_rev "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/original_files/extension/updated_states/gsecd.$1.txt"
+SAVE/CLOBBER/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_secd_$1.nc" secd_rev
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+FILE/COLUMNS=720/GRID=luhgrid/SKIP=6/VAR=prim_rev "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/original_files/extension/updated_states/gothr.$1.txt"
+SAVE/CLOBBER/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_prim_$1.nc" prim_rev
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Re-open in correct order and append to existing file
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+USE/ORDER=X-Y "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_crop_$1.nc"
+
+SET VARIABLE/BAD=-9999/TITLE=crop crop_rev 
+LET/TITLE="cropland area fraction"/units="1" crop=crop_rev
+
+SAVE/CLOBBER/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_landuse_halfdeg_$1.nc" crop
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+
+USE/ORDER=X-Y "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_past_$1.nc"
+
+SET VARIABLE/BAD=-9999/TITLE=past past_rev 
+LET/TITLE="pasture area fraction"/units="1" past=past_rev
+
+SAVE/APPEND/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_landuse_halfdeg_$1.nc" past
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+USE/ORDER=X-Y "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_secd_$1.nc"
+
+SET VARIABLE/BAD=-9999/TITLE=secd secd_rev 
+LET/TITLE="secondary land area fraction"/units="1" secd=secd_rev
+
+SAVE/APPEND/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_landuse_halfdeg_$1.nc" secd
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
+
+USE/ORDER=X-Y "/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_prim_$1.nc"
+
+SET VARIABLE/BAD=-9999/TITLE=prim prim_rev 
+LET/TITLE="primary land area fraction"/units="1" prim=prim_rev
+
+SAVE/APPEND/FILE="/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/tmp_landuse_halfdeg_$1.nc" prim
+
+CANCEL DATA/ALL
+CANCEL VAR/ALL
+
