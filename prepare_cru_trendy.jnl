@@ -1,0 +1,193 @@
+!! //////////////////////////////////////////////////////////////////
+!! Extends CRU data by linear interpolation to fit gicew mask
+!! Regrids to 1x1deg and lpjgr (2.5x3.75deg).
+!! CRUBASE is implemented here to use first 31 years of 20th century.
+!! This was done the same way (instead of using detrended 1960-1990
+!! climatology like before) in Stocker et al., 2013, NatCC. Has the
+!! advantage of "starting at the same point" like simulations that
+!! use prescribed CRU climate from 1901-2014.
+!! beni@climate.unibe.ch
+!! ------------------------------------------------------------------
+
+! !! define land mask (maximum mask) - if not yet available on /card
+! use "/card/forcings/lpx/soil/peltier2004/landmask_pelt04_rs_bacorr_McDGhLsl_lpjgr.cdf"
+! let tmp = missing(land[d=1],9999)  ! change all missing values to 9999
+! let tmp2 = if tmp eq 0 then 9999 else tmp  ! change all ice to 9999
+! let tmp3 = if tmp2 ne 9999 then 1 else 0  ! change all land to 1
+! let tmp4 = tmp3[l=@sum] ! add up all cells along time axis
+! let mask = if tmp4 ge 1 then 1
+! save/clobber/file=maxlandmask_pelt04_rs_lpjgr.cdf mask
+! cancel var mask
+! cancel data 1
+! !use maxlandmask_pelt04_rs_lpjgr.cdf
+
+set memory/size=500
+use "/alphadata01/bstocker/data/cru/cru_ts_3.23/cru_ts3.23.1901.2014.tmp.dat.nc"
+use "/alphadata01/bstocker/data/cru/cru_ts_3.23/cru_ts3.23.1901.2014.pre.dat.nc"
+use "/alphadata01/bstocker/data/cru/cru_ts_3.23/cru_ts3.23.1901.2014.cld.dat.nc"
+use "/alphadata01/bstocker/data/cru/cru_ts_3.23/cru_ts3.23.1901.2014.wet.dat.nc"
+use "/alphadata01/bstocker/data/card/forcings/lpx/soil/gicew/gicew_halfdeg.cdf"
+use "/alphadata01/bstocker/data/card/forcings/lpx/soil/gicew/gicew_1x1deg.cdf"
+!use "/alphadata01/bstocker/data/card/forcings/lpx/soil/peltier2004/maxlandmask_pelt04_rs_lpjgr.cdf"
+use maxlandmask_pelt04_rs_lpjgr.cdf
+
+!! Adjust to your own directory (where you have writing permissions)
+let outdir = "/alphadata01/bstocker/data/cru/cru_ts_3.23"
+
+!! //////////////////////////////////////////////////////////////////
+!! HALFDEG
+!! ------------------------------------------------------------------
+!! define gicew mask
+let mask = if gicew[d=5] lt 1.000 then 1
+
+!! extend to entire gicew mask by linear intra-/extrapolation
+let tas     = if mask then tmp[x=@fav:12,y=@fav:12,d=1]
+let pr      = if mask then pre[x=@fav:12,y=@fav:12,d=2]
+let clt     = if mask then cld[x=@fav:12,y=@fav:12,d=3]
+let wetdays = if mask then wet[x=@fav:12,y=@fav:12,d=4]
+
+! !! This should not display any valid data
+! let aux=missing(tas,9999)
+! let ismissing=if aux eq 9999 then 1
+! let test=if mask then ismissing
+! shade test[l=1]
+
+!! copy attributes from original data to output data
+set att/like=tmp[d=1] tas
+set att/like=pre[d=2] pr
+set att/like=cld[d=3] clt 
+set att/like=wet[d=4] wetdays
+
+!! save in 2 steps due to memory limitation
+save/clobber/file="`outdir`/tas_cru_ts_3_23_1901_2014_halfdeg.nc" tas[l=1:600]
+save/append/file="`outdir`/tas_cru_ts_3_23_1901_2014_halfdeg.nc" tas[l=601:1368]
+
+save/clobber/file="`outdir`/pr_cru_ts_3_23_1901_2014_halfdeg.nc" pr[l=1:600]
+save/append/file="`outdir`/pr_cru_ts_3_23_1901_2014_halfdeg.nc" pr[l=601:1368]
+
+save/clobber/file="`outdir`/clt_cru_ts_3_23_1901_2014_halfdeg.nc" clt[l=1:600]
+save/append/file="`outdir`/clt_cru_ts_3_23_1901_2014_halfdeg.nc" clt[l=601:1368]
+
+save/clobber/file="`outdir`/wd_cru_ts_3_23_1901_2014_halfdeg.nc" wetdays[l=1:600]
+save/append/file="`outdir`/wd_cru_ts_3_23_1901_2014_halfdeg.nc" wetdays[l=601:1368]
+
+!! CRUBASE: only first 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1901_1931_halfdeg.nc" tas[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_halfdeg.nc" pr[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_halfdeg.nc" clt[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_halfdeg.nc" wetdays[l=1:372]
+
+!! CRUPRES: only last 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1984_2014_halfdeg.nc" tas[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_halfdeg.nc" pr[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_halfdeg.nc" clt[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_halfdeg.nc" wetdays[l=997:1368]
+
+cancel var tas
+cancel var pr
+cancel var clt
+cancel var wetdays
+
+!! //////////////////////////////////////////////////////////////////
+!! 1x1deg
+!! ------------------------------------------------------------------
+!! define gicew mask
+let mask = if gicew[d=6] lt 1 then 1
+
+let tas_tmp     = tmp[gxy=mask@ave,d=1]
+let pr_tmp      = pre[gxy=mask@ave,d=2]
+let clt_tmp     = cld[gxy=mask@ave,d=3]
+let wetdays_tmp = wet[gxy=mask@ave,d=4]
+
+!! extend to entire gicew mask by linear intra-/extrapolation
+let tas     = if mask then tas_tmp[x=@fav:7,y=@fav:7,d=1]
+let pr      = if mask then pr_tmp[x=@fav:7,y=@fav:7,d=2]
+let clt     = if mask then clt_tmp[x=@fav:7,y=@fav:7,d=3]
+let wetdays = if mask then wetdays_tmp[x=@fav:7,y=@fav:7,d=4]
+
+! !! This should not display any valid data
+! let aux=missing(tas,9999)
+! let ismissing=if aux eq 9999 then 1
+! let test=if mask then ismissing
+! shade test[l=1]
+! pause
+
+!! copy attributes from original data to output data
+set att/like=tmp[d=1] tas
+set att/like=pre[d=2] pr
+set att/like=cld[d=3] clt 
+set att/like=wet[d=4] wetdays
+
+!! save data
+save/clobber/file="`outdir`/tas_cru_ts_3_23_1901_2014_1x1deg.nc" tas
+save/clobber/file="`outdir`/pr_cru_ts_3_23_1901_2014_1x1deg.nc" pr
+save/clobber/file="`outdir`/clt_cru_ts_3_23_1901_2014_1x1deg.nc" clt
+save/clobber/file="`outdir`/wd_cru_ts_3_23_1901_2014_1x1deg.nc" wetdays
+
+!! CRUBASE: only first 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1901_1931_1x1deg.nc" tas[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_1x1deg.nc" pr[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_1x1deg.nc" clt[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_1x1deg.nc" wetdays[l=1:372]
+
+!! CRUPRES: only last 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1984_2014_1x1deg.nc" tas[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_1x1deg.nc" pr[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_1x1deg.nc" clt[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_1x1deg.nc" wetdays[l=997:1368]
+
+cancel var tas
+cancel var pr
+cancel var clt
+cancel var wetdays
+
+!! //////////////////////////////////////////////////////////////////
+!! lpjgr (2.5 x 3.75 deg)
+!! ------------------------------------------------------------------
+let tas_tmp     = tmp[gxy=mask[d=7]@ave,d=1]
+let pr_tmp      = pre[gxy=mask[d=7]@ave,d=2]
+let clt_tmp     = cld[gxy=mask[d=7]@ave,d=3]
+let wetdays_tmp = wet[gxy=mask[d=7]@ave,d=4]
+
+!! extend/restrict to entire gicew mask
+let tas     = if mask[d=7] then tas_tmp
+let pr      = if mask[d=7] then pr_tmp
+let clt     = if mask[d=7] then clt_tmp
+let wetdays = if mask[d=7] then wetdays_tmp
+
+! !! This should not display any valid data
+! let aux=missing(tas,9999)
+! let ismissing=if aux eq 9999 then 1
+! let test=if mask then ismissing
+! shade test[l=1]
+
+!! copy attributes from original data to output data
+set att/like=tmp[d=1] tas
+set att/like=pre[d=2] pr
+set att/like=cld[d=3] clt 
+set att/like=wet[d=4] wetdays
+
+!! save data
+save/clobber/file="`outdir`/tas_cru_ts_3_23_1901_2014_lpjgr.nc" tas[l=1:600]
+save/append/file="`outdir`/tas_cru_ts_3_23_1901_2014_lpjgr.nc" tas[l=601:1368]
+
+save/clobber/file="`outdir`/pr_cru_ts_3_23_1901_2014_lpjgr.nc" pr[l=1:600]
+save/append/file="`outdir`/pr_cru_ts_3_23_1901_2014_lpjgr.nc" pr[l=601:1368]
+
+save/clobber/file="`outdir`/clt_cru_ts_3_23_1901_2014_lpjgr.nc" clt[l=1:600]
+save/append/file="`outdir`/clt_cru_ts_3_23_1901_2014_lpjgr.nc" clt[l=601:1368]
+
+save/clobber/file="`outdir`/wd_cru_ts_3_23_1901_2014_lpjgr.nc" wetdays[l=1:600]
+save/append/file="`outdir`/wd_cru_ts_3_23_1901_2014_lpjgr.nc" wetdays[l=601:1368]
+
+!! CRUBASE: only first 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1901_1931_lpjgr.nc" tas[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_lpjgr.nc" pr[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_lpjgr.nc" clt[l=1:372]
+save/append/file="`outdir`/clim_cru_ts_3_23_1901_1931_lpjgr.nc" wetdays[l=1:372]
+
+!! CRUPRES: only last 31 years
+save/clobber/file="`outdir`/clim_cru_ts_3_23_1984_2014_lpjgr.nc" tas[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_lpjgr.nc" pr[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_lpjgr.nc" clt[l=997:1368]
+save/append/file="`outdir`/clim_cru_ts_3_23_1984_2014_lpjgr.nc" wetdays[l=997:1368]
