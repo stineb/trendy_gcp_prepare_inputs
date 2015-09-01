@@ -16,23 +16,23 @@ go "/alphadata01/bstocker/trendy_gcp2014/asc2cdf_luh.jnl" ${iyr}
 quit
 EOF
   
-  # # Regrid using the R function (loop over scenarios inside R script!!!)
-  # echo "Regridding landuse states for year $iyr"
-  # R CMD BATCH --no-save --no-restore /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_luh.R /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_luh.out
+  # Regrid using the R function (loop over scenarios inside R script!!!)
+  echo "Regridding landuse states for year $iyr"
+  R CMD BATCH --no-save --no-restore /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_luh.R /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_luh.out
 
   cd tmp
 
   # rm tmp_*_${iyr}.nc
   fil_halfdeg="tmp_landuse_halfdeg_${iyr}.nc"
-  #fil_1x1deg="tmp_landuse_1x1deg_${iyr}.nc"
+  fil_1x1deg="tmp_landuse_1x1deg_${iyr}.nc"
 
   ## Make 'time' a record dimension in NetCDF file
   let k=k+1
   tmpn_halfdeg=tmp_`printf "%03d" $k`_halfdeg.nc
-  #tmpn_1x1deg=tmp_`printf "%03d" $k`_1x1deg.nc
+  tmpn_1x1deg=tmp_`printf "%03d" $k`_1x1deg.nc
 
   ncks -O --mk_rec_dmn TIME ${fil_halfdeg} ${tmpn_halfdeg}
-  #ncks -O --mk_rec_dmn TIME ${fil_1x1deg}  ${tmpn_1x1deg}
+  ncks -O --mk_rec_dmn TIME ${fil_1x1deg}  ${tmpn_1x1deg}
 
   cd ..
 
@@ -41,10 +41,10 @@ done
 cd tmp
 
 ncrcat -O tmp_???_halfdeg.nc landuse_states_luh_gcp2014_halfdeg_2006-2014.cdf
-#ncrcat -O tmp_???_1x1deg.nc  landuse_states_luh_gcp2014_1x1deg_2006-2014.cdf
+ncrcat -O tmp_???_1x1deg.nc  landuse_states_luh_gcp2014_1x1deg_2006-2014.cdf
 
 mv landuse_states_luh_gcp2014_halfdeg_2006-2014.cdf ..
-#mv landuse_states_luh_gcp2014_1x1deg_2006-2014.cdf ..
+mv landuse_states_luh_gcp2014_1x1deg_2006-2014.cdf ..
 
 cd ..
 

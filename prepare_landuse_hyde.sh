@@ -23,9 +23,8 @@ cd /alphadata01/bstocker/data/landuse_data/hyde3_2/zipfiles/
 
 
 
-## unzip files
 list=`ls *_lu.zip`
-let k=0
+k=0
 for idx in $list
 do
   
@@ -36,29 +35,29 @@ do
   let yr=${filnam:0:4}
   echo $yr>yrlist.txt
 
-#   ## Inflate zipped archive (=> cropland1600AD.asc, grazing1600AD.asc, irri1600AD.asc, pasture1600AD.asc, rangeland1600AD.asc)
-#   unzip $idx
+  ## Inflate zipped archive (=> cropland1600AD.asc, grazing1600AD.asc, irri1600AD.asc, pasture1600AD.asc, rangeland1600AD.asc)
+  unzip $idx
 
-#   # mkdir raw
+  # mkdir raw
 
-#   ## Convert ascii to NetCDF (single annual fields)
-#   echo "converting ASCII to NetCDF"
-# /usr/local/ferret/bin/ferret <<EOF    
-# go "/alphadata01/bstocker/trendy_gcp2014/asc2cdf_hyde.jnl" ${yr}
-# quit
-# EOF
+  ## Convert ascii to NetCDF (single annual fields)
+  echo "converting ASCII to NetCDF"
+/usr/local/ferret/bin/ferret <<EOF    
+go "/alphadata01/bstocker/trendy_gcp2014/asc2cdf_hyde.jnl" ${yr}
+quit
+EOF
 
-#   ## delete ASCII files 
-#   rm cropland${yr}AD.asc
-#   rm grazing${yr}AD.asc
-#   rm irri${yr}AD.asc
-#   rm pasture${yr}AD.asc
-#   rm rangeland${yr}AD.asc
+  ## delete ASCII files 
+  rm cropland${yr}AD.asc
+  rm grazing${yr}AD.asc
+  rm irri${yr}AD.asc
+  rm pasture${yr}AD.asc
+  rm rangeland${yr}AD.asc
 
-#   ## delete temporary NetCDF file
-#   rm tmp_crop_${yr}.nc
-#   rm tmp_gras_${yr}.nc
-#   rm tmp_built_${yr}.nc
+  ## delete temporary NetCDF file
+  rm tmp_crop_${yr}.nc
+  rm tmp_gras_${yr}.nc
+  rm tmp_built_${yr}.nc
 
   # Regrid using the R function (loop over scenarios inside R script!!!)
   echo "Regridding for year $yr"

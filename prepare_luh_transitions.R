@@ -116,7 +116,7 @@ for (ilon in 1:nlon){
                         col.names=col.names, 
                         row.names=row.names,
                         header=FALSE
-                        #header=TRUE
+                        #header=TRUE XXX set to true for historical files (not 'extension') !!!
                         )
       
       # print(paste("length of tmp", length(tmp[iyr,2:22])))
@@ -142,7 +142,7 @@ for (itrans in 1:length(transnames)){
             outfield[,,itrans], transnames[itrans],
             out.land.avail$lon,
             out.land.avail$lat,
-            paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_hurtt_historical_",transnames[itrans],"_",year,"_halfdeg.nc",sep=""),
+            paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_luh_gcp2014_halfdeg_",transnames[itrans],"_",year,".nc",sep=""),
             time=year,make.tdim=TRUE,
             nvars=1
             )
@@ -178,7 +178,7 @@ for (itrans in 1:length(transnames)){
               out.regrid.landuse$lu[,,1], transnames[itrans],
               out.regrid.landuse$lon,
               out.regrid.landuse$lat,
-              paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_hurtt_historical_",transnames[itrans],"_",year,"_1x1deg.nc",sep=""),
+              paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_luh_gcp2014_1x1deg_",transnames[itrans],"_",year,".nc",sep=""),
               time=year,make.tdim=TRUE,
               nvars=1
               )
@@ -187,7 +187,7 @@ for (itrans in 1:length(transnames)){
               out.regrid.landuse$lu.rel[,,1], transnames[itrans],
               out.regrid.landuse$lon,
               out.regrid.landuse$lat,
-              paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_hurtt_historical_",transnames[itrans],"_",year,"_1x1deg.nc",sep=""),
+              paste("/alphadata01/bstocker/data/landuse_data/luh_gcp2014/tmp/landuse_trans_luh_gcp2014_1x1deg_",transnames[itrans],"_",year,".nc",sep=""),
               time=year,make.tdim=TRUE,
               nvars=1
               )
