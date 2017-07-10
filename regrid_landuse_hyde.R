@@ -1,7 +1,8 @@
 ####################################################################
-## Function opens original HYDE landuse data and passes it on to function regrid.landuse()
+## Function opens original HYDE landuse data and passes it on to 
+## function regrid.landuse(), for one single year (time step).
 ## -----------------------------------------------------------------
-regrid.landuse.hyde <- function( year, grid.out, verbose=FALSE ){ 
+regrid_landuse_hyde <- function( year, grid.out, datadir, verbose=FALSE ){ 
 
   # ## debug	
   # year <- "1600"
@@ -9,9 +10,9 @@ regrid.landuse.hyde <- function( year, grid.out, verbose=FALSE ){
   # verbose <- TRUE
 
   library(RNetCDF)
-  source('/alphadata01/bstocker/lpx/lpxtools/trunk/landuse/get.land.avail.R')
-  source('/alphadata01/bstocker/lpx/lpxtools/trunk/landuse/regrid_landuse.R')
-  source('/alphadata01/bstocker/lpx/lpxtools/trunk/landuse/cdf.write.R')
+  source('./regrid_library/get.land.avail.R')
+  source('./regrid_library/regrid_landuse.R')
+  source('./regrid_library/cdf.write.R')
   
   if (verbose){
     print("*******************")
@@ -30,17 +31,14 @@ regrid.landuse.hyde <- function( year, grid.out, verbose=FALSE ){
   dimname_orig_time <- "TIME"
   ncat <- length( varname_orig )
   
-  ## Initialise array containing land use areas of all categories in original file(s)
+  ## Initialise array containing land use areas of all categories in original file(s), no time dimension
   lu <- array(0,c(length(lon),length(lat),ncat)) 
   
   ## Read original file
   if (verbose) {print("reading original landuse data...")}
-  fil.orig <- paste(
-                    "/alphadata01/bstocker/data/landuse_data/hyde3_2/zipfiles/raw/landuse_",year,".nc",
-                    sep=""
-                    )
+  fil.orig <- paste( datadir, "landuse_",year,".nc", sep="" )
   nc <- open.nc(fil.orig)  
-  time <- var.get.nc(nc,dimname_orig_time,c(1),c(1))
+  time <- var.get.nc( nc, dimname_orig_time, c(1), c(1) )
   for (k in seq(ncat)) {
     lu[,,k] <- var.get.nc(nc,varname_orig[k])
   }
@@ -57,7 +55,7 @@ regrid.landuse.hyde <- function( year, grid.out, verbose=FALSE ){
             out.regrid.landuse$lu.rel[,,1], "crop",
             out.regrid.landuse$lon,
             out.regrid.landuse$lat,
-            paste("/alphadata01/bstocker/data/landuse_data/hyde3_2/zipfiles/landuse_hyde2014_",grid.out,"_",year,".cdf",sep=""),
+            paste( datadir, "landuse_hyde2014_", grid.out, "_", year, ".cdf", sep="" ),
             time=time,make.tdim=TRUE,
             nvars=3,
             var2=out.regrid.landuse$lu.rel[,,2], varnam2="past",
@@ -71,9 +69,9 @@ regrid.landuse.hyde <- function( year, grid.out, verbose=FALSE ){
 ## /////////////////////////////////////////////////////////////////
 ## DO THE REGRID
 ## -----------------------------------------------------------------
-yrs <- read.table( "/alphadata01/bstocker/data/landuse_data/hyde3_2/zipfiles/yrlist.txt", col.names=c("year") )
-yr  <- yrs$year
+datadir <- "/alphadata01/bstocker/data/landuse_data/hyde32_gcp2017/hyde32_baseline/"
+yr <- read.table( ( datadir, "yrlist.txt", sep="" ), col.names=c("year") )$year
 
-regrid.landuse.hyde( as.character(yr), "halfdeg", verbose=TRUE )
-regrid.landuse.hyde( as.character(yr), "1x1deg", verbose=TRUE )
+regrid_landuse_hyde( as.character(yr), "halfdeg", datadir,  verbose=TRUE )
+regrid_landuse_hyde( as.character(yr), "1x1deg",  datadir, verbose=TRUE )
 
