@@ -9,17 +9,17 @@
 ## Beni Stocker, 21.03.2011
 ## -----------------------------------------------------------------
 
-get.land.avail <- function( grid.out, verbose=FALSE, fraction=TRUE ){
+get.land.avail <- function( grid.out, dirnam, verbose=FALSE, fraction=TRUE ){
 		
   library(RNetCDF)
-  source('/alphadata01/bstocker/lpx/lpxtools/trunk/landuse/area.R')
+  source('./regrid_library/area.R')
 
   if (grid.out=="halfdeg"){
-    filn.dest <- "/card/forcings/lpx/soil/gicew/gicew_halfdeg.cdf"
+    filn.dest <- paste( dirnam, "gicew_halfdeg.cdf", sep="" )
   } else if (grid.out=="1x1deg") {
-    filn.dest <- "/card/forcings/lpx/soil/gicew/gicew_1x1deg.cdf"
+    filn.dest <- paste( dirnam, "gicew_1x1deg.cdf", sep="" )
   } else if (grid.out=="lpjgr") {
-    filn.dest <- "/card/forcings/lpx/soil/peltier2004/landmask_pelt04_rs_lpjgr.cdf"
+    filn.dest <- paste( dirnam, "landmask_pelt04_rs_lpjgr.cdf", sep="" )
   } else {
     print("please provide destination grid as argument.")
     print("(halfdeg, 1x1deg, or lpjgr)")

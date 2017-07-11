@@ -4,19 +4,19 @@ DEFINE AXIS/t=$1:$1:1 TIME
 DEFINE GRID/x=LON/y=LAT/t=TIME hydegrid
 
 !! Read ascii data and save in NetCDF
-FILE/COLUMNS=4319/GRID=hydegrid/SKIP=6/VAR=crop_rev "$3/cropland$1AD.asc"
-SAVE/CLOBBER/FILE="$3/tmp_crop_$1.nc" crop_rev
+FILE/COLUMNS=4319/GRID=hydegrid/SKIP=6/VAR=crop_rev "$3/raw/asc/cropland$2.asc"
+SAVE/CLOBBER/FILE="$3/raw/tmp_crop_$2.nc" crop_rev
 
 CANCEL DATA/ALL
 CANCEL VAR/ALL
 
-FILE/COLUMNS=4319/GRID=hydegrid/SKIP=6/VAR=gras_rev "$3/grazing$1AD.asc"
-SAVE/CLOBBER/FILE="$3/tmp_gras_$1.nc" gras_rev
+FILE/COLUMNS=4319/GRID=hydegrid/SKIP=6/VAR=gras_rev "$3/raw/asc/grazing$2.asc"
+SAVE/CLOBBER/FILE="$3/raw/tmp_gras_$2.nc" gras_rev
 
 CANCEL DATA/ALL
 CANCEL VAR/ALL
 
-USE/ORDER=X-Y "$3/tmp_crop_$1.nc"
+USE/ORDER=X-Y "$3/raw/tmp_crop_$2.nc"
 
 SET VARIABLE/BAD=-9999/TITLE=crop crop_rev 
 LET/TITLE="cropland area"/units="km/gridcell" crop=crop_rev
@@ -26,7 +26,7 @@ SAVE/CLOBBER/FILE="$3/raw/landuse_$1.nc" crop
 CANCEL DATA/ALL
 CANCEL VAR/ALL
 
-USE/ORDER=X-Y "$3/tmp_gras_$1.nc"
+USE/ORDER=X-Y "$3/raw/tmp_gras_$2.nc"
 
 SET VARIABLE/BAD=-9999/TITLE=past gras_rev 
 LET/TITLE="pasture area"/units="km/gridcell" past=gras_rev

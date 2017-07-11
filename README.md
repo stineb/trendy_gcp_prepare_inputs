@@ -19,5 +19,8 @@ Steps are:
 6. Combine time steps into single file
 7. Modify NetCDF attributes
 
+## Requirements
+Scripts are in bash, R, and Ferret, and use NCO commands and the lftp command. R uses the RNetCDF library. 
+
 Important: Modify all paths in scripts for your application and note some commented-out lines that need to be un-commented for preparing historical LUH files (as opposed to "extension").
 You are free to use these scripts - open source! Please clone this repository and share your additions/modifications through github.
