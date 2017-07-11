@@ -7,6 +7,7 @@
 mydir=`pwd`
 scen="hyde32_baseline"
 era="BC AD"
+myhome="/Users/benjaminstocker"
 
 ## Loop over the three (best,lower,upper)
 for iscen in $scen
@@ -16,18 +17,18 @@ do
     echo "---------------------------------------------------------------------"
             
     ## Create directory to store files
-    dirnam="/alphadata01/bstocker/data/landuse_data/hyde32_gcp2017/${iscen}"
-    if [ ! -e $dirnam ]
+    dirnam="${myhome}/data/landuse_data/hyde32_gcp2017"
+    if [ ! -e ${dirnam}/raw ]
       then
-      echo "creating subdirectory structure $dirnam"
-      mkdir -p $dirnam
+      echo "creating subdirectory structure ${dirnam}/raw/asc"
+      mkdir -p ${dirnam}/raw
     fi
     
     ## Define host address
-    host="ftp://ftp.pbl.nl/hyde/tmp/2017/"
+    host="ftp://ftp.pbl.nl/hyde/tmp/2017/zip/"
 
     ## Get list of files on FTP server
-    # lftp -f get_filelist_${iscen}.lftp > filelist_${iscen}.txt
+    lftp -f get_filelist_hyde32_gcp2017.lftp > ${mydir}/filelist_hyde32_gcp2017.txt
 
     cd ${dirnam}
 
@@ -50,7 +51,7 @@ do
         fi
 
         ## get only files with pattern '_lu' in file name
-        list=`cat filelist_${iscen}.txt|grep _lu|grep $jdx`  ## landuse data
+        list=`cat ${mydir}/filelist_hyde32_gcp2017.txt | grep _lu | grep $jdx`  ## landuse data
         # echo $list
         
         for idx in $list
@@ -59,10 +60,10 @@ do
             echo "/////////////////////////////////////////////////////////////////////"
             echo "downloading ${host}${idx} ..."
             echo "---------------------------------------------------------------------"
-            # wget ${host}${idx}
+            wget ${host}${idx}
 
             ## Unzip the file
-            # unzip ${idx}
+            unzip ${idx}
 
             ## Get year from file name
             if [ $jdx == "BC" ]
@@ -73,8 +74,8 @@ do
             fi
 
             ## new:
-            let pos=${pos}-1
-            let yrabs=${idx:0:${pos}}
+            let pos=${pos}-3
+            let yrabs=${idx:2:${pos}}
             let yr=${mult}*${yrabs}
             echo "yr: $yr"
             if [ $jdx == "BC" ]
@@ -88,13 +89,13 @@ do
             echo "${yr_string}"
             echo ${yr}>>yrlist.txt
 
-            ## Convert ascii to NetCDF (single annual fields)
-            echo "converting ascii to netcdf for year $yr ..."
-/opt/local/ferret/bin/ferret <<EOF    
-go "../asc2cdf_hyde.jnl" ${yr} ${argyr}
-quit
-EOF
-            #rm tmp*.nc
+#             ## Convert ascii to NetCDF (single annual fields)
+#             echo "converting ascii to netcdf for year $yr ..."
+# /usr/local/ferret/bin/ferret <<EOF    
+# go "asc2cdf_hyde.jnl" ${yr} ${argyr} ${dirnam}
+# quit
+# EOF
+            rm tmp*.nc
 
         done
         
@@ -104,50 +105,50 @@ EOF
    
 done
 
-# Regrid using the R function (loop over scenarios inside R script!!!)
-R CMD BATCH --no-save --no-restore regrid_landuse_hyde32.R regrid_landuse_hyde32.out
+# # Regrid using the R function (loop over scenarios inside R script!!!)
+# R CMD BATCH --no-save --no-restore regrid_landuse_hyde32.R regrid_landuse_hyde32.out
 
-scen="baseline"
-res="halfdeg"
-mydir=`pwd`
+# scen="baseline"
+# res="halfdeg"
+# mydir=`pwd`
 
-## Combine annual fields along time axis
+# ## Combine annual fields along time axis
 
-for iscen in $scen
-do
+# for iscen in $scen
+# do
 
-    ## cd to data directory
-    dirnam="/alphadata01/bstocker/data/landuse_data/hyde32_gcp2017/hyde32_${iscen}"
-    cd $dirnam
+#     ## cd to data directory
+#     dirnam="${myhome}/data/landuse_data/hyde32_gcp2017"
+#     cd $dirnam
 
-    for ires in ${res}
-    do
+#     for ires in ${res}
+#     do
     
-        # ## Make 'time' a record dimension in all multi-decadal files
-        echo "concatenate files along time axis..."
-        list=`ls -tr landuse_hyde32_${iscen}_${ires}*.cdf`
-        k=0
-        for idx in $list
-        do
-            echo $idx
-            let k=k+1
-            tmpn=tmp_`printf "%02d" $k`.nc
-            echo "cmd: ncks -O --mk_rec_dmn TIME ${idx} ${tmpn}"
-            ncks -O --mk_rec_dmn TIME ${idx} ${tmpn}
-        done
+#         # ## Make 'time' a record dimension in all multi-decadal files
+#         echo "concatenate files along time axis..."
+#         list=`ls -tr landuse_hyde32_gcp2017_${ires}*.cdf`
+#         k=0
+#         for idx in $list
+#         do
+#             echo $idx
+#             let k=k+1
+#             tmpn=tmp_`printf "%02d" $k`.nc
+#             echo "cmd: ncks -O --mk_rec_dmn TIME ${idx} ${tmpn}"
+#             ncks -O --mk_rec_dmn TIME ${idx} ${tmpn}
+#         done
         
-        ## Concatenate all multi-decadal files to single file for historical period
-        ncrcat -O tmp*.nc landuse_hyde32_${iscen}_${ires}.cdf
-        #rm tmp*.nc
+#         ## Concatenate all multi-decadal files to single file for historical period
+#         ncrcat -O tmp*.nc landuse_hyde32_gcp2017_${ires}.cdf
+#         #rm tmp*.nc
 
-    done
+#     done
 
-    cd $mydir
+#     cd $mydir
 
-done
+# done
 
-#modify attributes
-#./prepare_landuse_hyde32.sh
+# #modify attributes
+# #./prepare_landuse_hyde32.sh
 
 
 
@@ -156,7 +157,7 @@ done
 
 # ## First, download zipped archive files that contain (cropland1600AD.asc, grazing1600AD.asc, irri1600AD.asc, pasture1600AD.asc, rangeland1600AD.asc)
 
-# cd /alphadata01/bstocker/data/landuse_data/hyde3_2/zipfiles/
+# cd ${myhome}/data/landuse_data/hyde3_2/zipfiles/
 
 
 # ## Inflate zipped archive (=> popc_200AD.asc     popd_200AD.asc     rurc_200AD.asc     uopp_200AD.asc     urbc_200AD.asc)
@@ -197,7 +198,7 @@ done
 #   ## Convert ascii to NetCDF (single annual fields)
 #   echo "converting ASCII to NetCDF"
 # /usr/local/ferret/bin/ferret <<EOF    
-# go "/alphadata01/bstocker/trendy_gcp2014/asc2cdf_hyde.jnl" ${yr}
+# go "${myhome}/trendy_gcp2014/asc2cdf_hyde.jnl" ${yr}
 # quit
 # EOF
 
@@ -215,7 +216,7 @@ done
 
 #   # Regrid using the R function (loop over scenarios inside R script!!!)
 #   echo "Regridding for year $yr"
-#   R CMD BATCH --no-save --no-restore /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_hyde.R /alphadata01/bstocker/trendy_gcp2014/regrid_landuse_hyde.out
+#   R CMD BATCH --no-save --no-restore ${myhome}/trendy_gcp2014/regrid_landuse_hyde.R ${myhome}/trendy_gcp2014/regrid_landuse_hyde.out
 
 #   ## delte high-resolution NetcDF file
 #   rm raw/landuse_${yr}.nc
@@ -246,7 +247,7 @@ done
 # # rm landuse_hyde2014_halfdeg_????.cdf
 # # rm landuse_hyde2014_1x1deg_????.cdf
 
-# cd /alphadata01/bstocker/trendy_gcp2014
+# cd ${myhome}/trendy_gcp2014
 
 
 # # ## modify attributes
