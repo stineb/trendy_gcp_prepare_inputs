@@ -4,10 +4,10 @@
 ## -----------------------------------------------------------------
 regrid_landuse_hyde <- function( year, idx, grid.out, datadir, verbose=FALSE ){ 
 
-  ## debug	
-  year <- "1600"
-  grid.out <- "halfdeg"
-  verbose <- TRUE
+  # ## debug	
+  # year <- "1600"
+  # grid.out <- "halfdeg"
+  # verbose <- TRUE
 
   library(RNetCDF)
   
