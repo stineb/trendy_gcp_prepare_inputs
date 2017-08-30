@@ -1,7 +1,7 @@
 ####################################################################
 ## Returns an array containing the gridcell fraction of available land on the desired resolution.
 ## grid.out		either "halfdeg", "1x1deg", or "lpjgr" representing the thre standard resolutions
-##			used in LPX.
+## used in LPX.
 ## verbose=FALSE	set to true for verbose standard output
 ## fraction=TRUE        defaults to TRUE. Determines whether 'land.avail' (return values) is units of
 ##                      gridcell area fraction of absolute area (m2) within each gridcell.
@@ -23,6 +23,13 @@ get.land.avail <- function( grid.out, dirnam, verbose=FALSE, fraction=TRUE ){
   } else {
     print("please provide destination grid as argument.")
     print("(halfdeg, 1x1deg, or lpjgr)")
+  }
+
+  ## warning if landmask file is not available
+  if (!file.exists(filn.dest)){
+    print("ERROR: land mask file not available:")
+    print(filn.dest)
+    print("gicew_1x1deg and gicew_halfdeg.cdf can be downloaded from http://luh.umd.edu/data.shtml.")
   }
 
   ## Read file containing destination grid

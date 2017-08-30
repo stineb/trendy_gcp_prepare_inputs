@@ -4,7 +4,7 @@ Author: Benjamin Stocker, Jul. 2017, b.stocker@creaf.uab.cat
 
 This repository contains scripts to process HYDE land use data for TRENDY simulations, used for the Global Carbon Project (GCP). HYDE data is provided by K. Klein-Goldewijk on a spatial grid of 5 arcmin (1/12 degrees) for each variable (pasture, cropland) separately and in ascii format. This repository contains scripts to convert this data to NetCDF and re-grid fields to a 0.5 and a 1.0 degrees spatial grid (land mask from LUH). Re-gridding conserves the total area under cropland use and the total area under pasture use.
 
-Important to note:
+**Important to note**:
 HYDE 3.2 provides variables `grazing = pasture + rangeland`, where pasture and rangeland areas are distinguished by management and use intensity. The files produced here contain the variable `past` which is equal to `grazing` in the HYDE 3.2 dataset (see `asc2cdf_hyde.jnl`). 
 
 ## Usage
